@@ -14,6 +14,10 @@ for (const file of commandFiles){
     client.commands.set(command.name, command)
 }
 
+function testBullshit(){
+    console.log('deeznuts')
+}
+
 function grabQuote(){
     return fetch('https://zenquotes.io/api/random')
         .then(res => {
