@@ -1,56 +1,59 @@
 
 
 module.exports = {
-    name: 'ticket',
+    name: "ticket",
     aliases: [],
     permissions: [],
-    description: 'open a ticket!',
-    async execute(message, args, cmd, client, discord){
-        const channel = await message.guild.channels.create(`ticket: ${message.author.tag}`)
-        channel.setParent('982722517192036402')
-
-        channel.permissionOverwrites.edit(message.guild.id, {
-            SEND_MESSAGES: false,
-            VIEW_CHANNEL: false
-        });
-
-        channel.permissionOverwrites.edit(message.author, {
-            SEND_MESSAGES: true,
-            VIEW_CHANNEL: true
-        });
-
-        const reactMessage = await channel.send('Thanks for reaching out :)')
-
-        try{
-            await reactMessage.react(':lock:')
-            await reactMessage.react(':octagonal_sign:')
-        }catch(err){
-            channel.send('Errort sending emojis')
-            throw err;
+    description: "open a ticket!",
+    async execute(message, args, cmd, client, discord) {
+      const channel = await message.guild.channels.create(`ticket: ${message.author.tag}`);
+      
+      channel.setParent("982756777584119848");
+  
+      channel.permissionOverwrites.edit(message.guild.id, {
+        SEND_MESSAGES: false,
+        VIEW_CHANNEL: false,
+      });
+      channel.permissionOverwrites.edit(message.author, {
+        SEND_MESSAGES: true,
+        VIEW_CHANNEL: true,
+      });
+  
+      const reactionMessage = await channel.send("Thank you for contacting support!");
+  
+      try {
+        await reactionMessage.react("🔒");
+        await reactionMessage.react("⛔");
+      } catch (err) {
+        channel.send("Error sending emojis!");
+        throw err;
+      }
+  
+      const collector = reactionMessage.createReactionCollector(
+        (reaction, user) => message.guild.members.cache.find((member) => member.id === user.id).hasPermission("ADMINISTRATOR"),
+        { dispose: true }
+      );
+  
+      collector.on("collect", (reaction, user) => {
+        switch (reaction.emoji.name) {
+          case "🔒":
+            channel.permissionOverwrites.edit(message.author, { SEND_MESSAGES: false });
+            break;
+          case "⛔":
+            channel.send("Deleting this channel in 5 seconds!");
+            setTimeout(() => channel.delete(), 5000);
+            break;
         }
-
-        const collector = reactMessage.createReactionCollector(
-            (reaction, user) => message.guild.members.cache.find((member) => member.id === user.id).hasPermissions('ADMINISTRATOR'),
-            { dispose: true}
-        );
-
-        collector.on('collect', (reaction, user) => {
-            switch (reaction.emoji.name){
-                case ':lock:':
-                    channel.permissionOverwrites.edit(message.author, {SEND_MESSAGES: false})
-                    break;
-                case ':octagonal_sign:':
-                    channel.send('Deleting this channel shortly')
-                    setTimeout(() => channel.delete(), 5000)
-                    break;
-            }
-        });
-
-        message.channel.send(`We will reach out to you shortly ${channel}`).then((msg) => {
-            setTimeout(() => msg.delete(), 7000)
-            setTimeout(() => message.delete(), 3000);
-        }).catch((err) => {
-            throw err;
+      });
+  
+      message.channel
+        .send(`We will be right with you! ${channel}`)
+        .then((msg) => {
+          setTimeout(() => msg.delete(), 10000);
+          setTimeout(() => message.delete(), 3000);
         })
-    }
-}
+        .catch((err) => {
+          throw err;
+        });
+    },
+  };

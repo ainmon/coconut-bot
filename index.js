@@ -1,7 +1,7 @@
 const Discord = require('discord.js')
 const fetch = require('node-fetch')
 const fs = require('fs');
-const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES"] })
+const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS"] })
 require("dotenv").config();
 
 //Discord Collection
